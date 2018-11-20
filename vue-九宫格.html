@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="format-detection" content="telephone=no, email=no">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="true">
+<meta name="MobileOptimized" content="320">
+<meta name="screen-orientation" content="portrait">
+<meta name="x5-orientation" content="portrait">
+<meta name="full-screen" content="yes">
+<meta name="x5-fullscreen" content="true">
+<meta name="browsermode" content="application">
+<meta name="x5-page-mode" content="app">
+<meta name="msapplication-tap-highlight" content="no">
+<meta charset="UTF-8">
+<title>九宫格-vue</title>
+<script type="text/javascript" src="js/root.js"></script>
+<link rel="stylesheet" type="text/css" href="css/base.css" />
+<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="js/vue.min.js"></script>
+<!-- <script src="https://cdn.bootcss.com/vue-resource/1.5.0/vue-resource.min.js"></script> -->
+<style>
+#app{padding:0.4rem;}
+.app_latex{width: 100%;height:14.2rem;background:#ccc;border: 1px solid #fff;box-sizing: border-box;}
+.app_latex_li{width: 33.33%;height: 33.33%;border-left: 1px solid #fff;border-top:1px solid #fff;box-sizing: border-box;float: left;position: relative;}
+.app_latex li:nth-of-type(3n+1){border-left:none;}
+.app_latex li img{width: 100%;height: 100%;position:absolute;left:0;top: 0;z-index: 9;}
+.app_latex_li span{display:block;height:100%;line-height: 500%;text-align: center;position:relative;z-index: 10;}
+/*.active{background:#f40;color:#fff;position:relative;z-index: 99;}*/
+.c_active{}
+.c_span{color:blue;}
+.view{width: 100%;height: 100%;position: absolute;left: 0;top: 0;display:none;background:#f40;}
+.active .view{display:block;opacity: 0.5;}
+
+</style>
+</head>
+<body>
+<section id="app">
+    <ul class="app_latex" id="lottery">
+        <li class="app_latex_li" :class='item.cls' v-on:click="c_active(index)" v-for='(item,index) in items' :key="item.id"><!-- {{index}} -->
+            <img :src="item.img" height="50" width="50" alt="" />
+            <span :class="item.lispan">{{item.span}}</span>
+            <section class="view"></section>
+        </li>
+        <!-- <li class="app_latex_li grid_li grid_li_0"><span>0</span><section class="view"></section></li>
+        <li class="app_latex_li grid_li grid_li_1"><span>1</span><section class="view"></section></li>
+        <li class="app_latex_li grid_li grid_li_2"><span>2</span><section class="view"></section></li>
+        <li class="app_latex_li grid_li grid_li_7"><span>7</span><section class="view"></section></li>
+        <li class="app_latex_li c_active"><span class="c_span">8点击</span></li>
+        <li class="app_latex_li grid_li grid_li_3"><span>3</span><section class="view"></section></li>
+        <li class="app_latex_li grid_li grid_li_6"><span>6</span><section class="view"></section></li>
+        <li class="app_latex_li grid_li grid_li_5"><span>5</span><section class="view"></section></li>
+        <li class="app_latex_li grid_li grid_li_4"><span>4</span><section class="view"></section></li> -->
+    </ul>
+  
+</section>
+</body>
+
+</html>
+
+<script type="text/javascript">
+new Vue({
+    el:"#app",
+    data:{     
+        shijian:4200,     // 获奖后需要一段时间弹出奖品
+        index:-1,         //当前转到那个位置，起始位置
+        count:8,           //格子位置
+        timer:0,          //setTimeout的ID，用clearTimeout清除
+        speed:20,         //初始转动速度
+        times:0,          //转动次数
+        cycle:70,         //转动基本次数：即至少需要转动多少次再进入抽奖环节
+        prize:-1,         //获奖位置
+        click: true,
+        items:[
+            {
+                cls:'grid_li grid_li_0',                 //   cls:class类名
+                span:'0',                                //   span:里面放置的是奖品
+                img:('images/xjq-icon.png'),             //   img:图片路径
+                percent:10,                              //   percent:百分比，也就是概率，可以设置，总和最高100
+                index:0                                  //   index：索引,对应到奖品,注意：索引不能随意修改。
+            },           
+            {
+                cls:'grid_li grid_li_1',
+                span:'1',
+                percent:10,
+                index:1
+            },     
+            {
+                cls:'grid_li grid_li_2',
+                span:'2',
+                percent:10,
+                index:2
+            },     
+            {
+                cls:'grid_li grid_li_7',
+                span:'7',
+                percent:10,
+                index:7
+            },
+            {
+                cls:'c_active',
+                span:'8点击',                         // 中间的那个点击事件按钮，percent百分比必须为0
+                lispan:'c_span',
+                img:('images/paylist-gou.png'),
+                percent:0,
+                index:8
+            }, 
+            {
+                cls:'grid_li grid_li_3',
+                span:'3',
+                percent:10,
+                index:3
+            },
+            {
+                cls:'grid_li grid_li_6',
+                span:'6',
+                percent:10,
+                index:6
+            },
+            {
+                cls:'grid_li grid_li_5',
+                span:'5',
+                percent:20,
+                index:5
+            },
+            {
+                cls:'grid_li grid_li_4',
+                span:'4',
+                percent:20,
+                index:4
+            }
+        ]
+    },
+    methods:{      // methods
+        c_active:function(index){            // c_active:function(index){}===c_active(){}
+            if( !this.click ){
+                return
+            }
+            this.speed = 20
+            this.click = false
+            this.startRoll()
+        },
+
+        //开始转动
+        startRoll(){                         
+            this.times+=1
+            this.oneRoll()
+            // 如果当前转动次数达到要求 && 目前转到的位置是中奖位置
+            if (this.times > this.cycle + 10 && this.prize == this.index) {
+                clearTimeout(this.timer)   // 清除转动定时器，停止转动
+                this.prize = -1
+                this.times = 0
+                this.click = true
+            } else {
+                if (this.times < this.cycle) {
+                    this.speed -= 10   // 加快转动速度
+                } else if (this.times == this.cycle) {    // 随机获得一个中奖位置
+                    // const index = parseInt(Math.random() * 10, 0) || 0
+                    // this.prize = index
+                    
+                    var percent  = Math.random()*100;
+                    var totalPercent = 0;
+                    console.log(percent)
+                    var index;
+                    // 设置中奖概率
+                    for(var i=0;i<this.items.length;i++){
+                        totalPercent += this.items[i].percent
+                        if( percent<=totalPercent ){
+                            console.log('percent',this.items[i].percent,'totalPercent',totalPercent)
+                            index = this.items[i].index
+                            this.prize = index;
+                            console.log(this.prize)                           
+                            // this.items[i]
+                            setTimeout(function(){
+                                alert($('.active span').text());
+                                this.click=false;
+                            },this.shijian)                                                       
+                            break
+                        }
+                    }  
+
+                    if (this.prize > 7) {
+                        this.prize = 7
+                    }
+                    //console.log(`中奖位置${this.prize}`)
+
+                } else if (this.times > this.cycle + 10 && ((this.prize == 0 && this.index == 7) || this.prize == this.index + 1)) {
+                    this.speed += 110
+                } else {
+                    this.speed += 20
+                }
+
+                if (this.speed < 40) {
+                    this.speed = 40
+                }
+                this.timer = setTimeout(this.startRoll, this.speed)
+            }
+            return false
+        },
+
+        // 每一次转动
+        oneRoll () {
+            let index = this.index   // 当前转动到哪个位置
+            const count = this.count  // 总共有多少个位置
+            $("#lottery").find('.grid_li_'+index).removeClass('active');
+            index += 1           
+            if (index > count - 1) {
+                index = 0
+            }
+            $("#lottery").find('.grid_li_'+index).addClass('active');
+            this.index = index           
+            return false
+        }
+
+    },            // methods结束
+    
+   
+    
+    mounted(){                //mounted
+        
+    }                         //mounted结束
+
+});  
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
